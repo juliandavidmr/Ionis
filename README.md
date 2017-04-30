@@ -44,6 +44,8 @@ Build the application in release mode.
 $ ionis release
 ```
 
+All commands ionic are soported. [See](https://ionicframework.com/docs/cli)
+
 **[Contributing](./.github/CONTRIBUTING.md)**
 
 **License MIT [@juliandavidmr](https://github.com/juliandavidmr)**

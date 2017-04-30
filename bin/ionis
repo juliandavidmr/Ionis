@@ -178,5 +178,7 @@ elif [ $1 == "version" ] || [ $1 == "v" ]; then
 elif [ $1 == "help" ]; then
   help
 else
-  echo -e "\e[1mCommand '$1' is not recognized. Enter: ionis help"
+  # Command is not recognized
+  echo -e "\e[1mCommand '$1' is not recognized. Passing params to 'ionic'"
+  ionic $@
 fi
