@@ -2,7 +2,6 @@
   "name": "ionis",
   "version": "1.0.0",
   "description": "Mini ionic manager. Prepare your applications faster.",
-  "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "start": "./bin/ionis help"
@@ -29,5 +28,12 @@
   "bugs": {
     "url": "https://github.com/juliandavidmr/Ionis/issues"
   },
-  "homepage": "https://github.com/juliandavidmr/Ionis#readme"
+  "homepage": "https://github.com/juliandavidmr/Ionis#readme",
+  "preferGlobal": true,
+  "os": [
+    "!win32"
+  ],
+  "engines": {
+    "node": "*"
+  }
 }
