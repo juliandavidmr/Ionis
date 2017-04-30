@@ -1,0 +1,182 @@
+#!/usr/bin/env bash
+
+#
+# Setup.
+#
+
+VERSION="1.0.0"
+
+function help {
+  echo -ne "\e[1m ionis $VERSION"
+  printf "\n Usage:\e[21m ionis [command] [flags]\n\n" 
+  printf " \e[1mCommands:\e[21m\n"
+  echo -e "\e[1m   prepare\e[21m  Prepare apk with certificate and optimization. Ready for playstore."
+  echo -e "\e[1m   pf     \e[21m  Add a platform. i.e: android, ios. Usage: ionis pf android"
+  echo -e "\e[1m   release\e[21m  Build the application in release mode."
+  echo -e "\e[1m   serve  \e[21m  Run server ionic. All Ionic flags are supported."
+  echo -e "\e[2m   s      \e[22m  Shortcut to serve."
+}
+
+# return 1 if global command line program installed, else 0
+# example:
+#   echo "node: $(program_is_installed node)"
+function program_is_installed {
+  # set to 1 initially
+  local return_=1
+  # set to 0 if not found
+  type $1 >/dev/null 2>&1 || { local return_=0; }
+  # return value
+  echo "$return_"
+}
+
+# example:
+#   configure_platform android
+#   configure_platform ios
+function configure_platform {
+  ionic platform add &1
+}
+
+function ionic_build_release {
+  if [ ! -f ./config.xml ]; then
+    echo -e "\e[1mError: file 'config.xml' not found"    
+    exit 1
+  fi
+  ionic build android --release $@
+}
+
+function ionic_serve {
+  ionic serve $@
+}
+
+check_cordova_ionic() {
+  if [ "$(program_is_installed cordova)" == 0 ]; then 
+    echo "Error: cordova is not installed."
+  fi
+}
+
+# Generate an apk release and prepare
+# the package for publication in the playstore.
+function ionic_prepare {
+  if [ "$(program_is_installed keytool)" == 0 ]; then 
+    echo -e "\e[1mError: keytool is not installed."
+    exit 1
+  fi
+  if [ "$(program_is_installed jarsigner)" == 0 ]; then 
+    echo -e "\e[1mError: jarsigner is not installed."
+    exit 1
+  fi
+  
+  # find zipalign
+  zipalign_dirname=$(find ~/Android/Sdk/build-tools/ -name 'zipalign*' | head -n 1)
+  if [ ! $zipalign_dirname ]; then
+    zipalign_dirname=$(find ~/Android/sdk/build-tools/ -name 'zipalign*' | head -n 1)
+  fi
+  if [ ! $zipalign_dirname ]; then
+    zipalign_dirname=$(find ~/android/sdk/build-tools/ -name 'zipalign*' | head -n 1)
+  fi
+  if [ ! $zipalign_dirname ]; then
+    echo "\e[1mError: zipalign not found."
+  fi  
+    
+  echo -n "Enter the name of the keystore (default: ionis-rls-key.keystore):"
+  read name_keystore
+  if [ ! $name_keystore ]; then
+    name_keystore="./ionis-rls-key.keystore"
+  fi
+
+  echo -n "Enter the name of the alias (default: ionis_name):"
+  read name_alias
+  if [ ! $name_alias ]; then
+    name_alias="ionis-name"
+  fi
+
+  # find ionis-rls-key.keystore
+  if [ -f $name_keystore ]; then
+    echo -n "Already exists the file '$name_keystore'. Want to use it? [y/n]"
+    read use_kstore_condition
+    if [ $use_kstore_condition == "y" ] || [ $use_kstore_condition == "Y" ]; then
+      use_keystore=$name_keystore
+    fi
+  fi
+
+  # Create or usage keystore
+  if [ $use_keystore ]; then
+    echo "Using keytore '$use_keystore'"
+  else
+    echo "Creating keystore..."
+    
+    echo -n "What is your name?"
+    read kt_name
+
+    echo -n "What is the name of your organizational unit?"
+    read kt_ou
+
+    echo -n "What is the name of your organization?"
+    read kt_o
+
+    echo -n "What is the name of your city?"
+    read kt_c    
+
+    keytool -genkey -v -keystore $name_keystore -alias $name_alias \
+      -keyalg RSA -keysize 2048 -validity 10000 -dname "cn=$kt_name, ou=$kt_ou, o=$kt_o, c=$kt_c"
+  fi
+
+  echo "Finding apk release..."
+  apk_release=$(find . -name '*release-unsigned.apk' | head -n 1)
+
+  echo "Signing and verifying the application..."  
+  jarsigner -verbose -sigalg SHA1withRSA -digestalg SHA1 -keystore $name_keystore $apk_release $name_alias
+
+  echo "Optimizing the APK..."
+  if [ -f APK_RELEASED.apk ]; then
+    rm APK_RELEASED.apk  
+  fi
+  $zipalign_dirname -v 4 $apk_release APK_RELEASED.apk
+}
+
+# check_cordova_ionic
+# configure_platform android
+#
+# examples:
+#   ionis prepare
+#   ionis release
+#   ionis serve
+#     ionis s
+#   ionis help
+#   ionis pf android
+#   ionis pf ios
+if [ ! $1 ]; then
+  echo "Not arguments. Enter: ionis help"
+  exit 1
+elif [ $1 == "release" ]; then  
+  echo "Mode $1. Wait please..."
+  if [ $2 ]; then 
+    shift
+  fi
+  ionic_build_release $@
+elif [ $1 == "serve" ] || [ $1 == "s" ]; then
+  echo "Mode serve. Wait please..."
+  if [ $2 ]; then 
+    shift
+  fi
+  ionic_serve $@
+elif [ $1 == "prepare" ]; then
+  echo "Prepare app."
+  ionic_prepare $@
+elif [ $1 = "pf" ]; then
+  if [ ! $2 ]; then 
+    echo "Argument not specified. The available arguments are: android, ios."
+    exit 1
+  fi
+  if [ ! $2 == "android" ] && [ ! $2 == "ios" ]; then 
+    echo "The '$2' platform is not recognized."
+    exit 1
+  fi
+  echo "Add platform $2"
+elif [ $1 == "version" ] || [ $1 == "v" ]; then
+  version
+elif [ $1 == "help" ]; then
+  help
+else
+  echo -e "\e[1mCommand '$1' is not recognized. Enter: ionis help"
+fi

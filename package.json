@@ -1,0 +1,33 @@
+{
+  "name": "ionis",
+  "version": "1.0.0",
+  "description": "Mini ionic manager. Prepare your applications faster.",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "./bin/ionis help"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/juliandavidmr/Ionis.git"
+  },
+  "keywords": [
+    "ionic",
+    "utilities",
+    "manager",
+    "prepare",
+    "build",
+    "node",
+    "binary",
+    "env"
+  ],
+  "bin": {
+    "ionis": "./bin/ionis"
+  },
+  "author": "@juliandavidmr",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/juliandavidmr/Ionis/issues"
+  },
+  "homepage": "https://github.com/juliandavidmr/Ionis#readme"
+}
