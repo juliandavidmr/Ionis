@@ -41,7 +41,7 @@ $ ionis pf android
 
 Build the application in release mode.
 ```sh
-$ ionis release
+$ ionis release android
 ```
 
 All commands ionic are soported. [See](https://ionicframework.com/docs/cli)
