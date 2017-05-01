@@ -2,6 +2,10 @@
 
 Ionic utilities. Manager your applications.
 
+### **Why ionis?**
+Sometimes the process of generating a production APK is complex. There may be some typing errors in the certification commands, or you may have problems with jarsigned, keytool and others. So I developed `ionis` to accelerate the process of preparing the apk. For more information see the command `ionis prepare`.
+
+
 ## Installation
 
 Since you probably already have `node`, the easiest way to install `ionis` is through npm:
@@ -47,5 +51,7 @@ $ ionis release android
 All commands ionic are soported. [See](https://ionicframework.com/docs/cli)
 
 **[Contributing](./.github/CONTRIBUTING.md)**
+
+**[Changelog](./.github/CHANGELOG.md)**
 
 **License MIT [@juliandavidmr](https://github.com/juliandavidmr)**

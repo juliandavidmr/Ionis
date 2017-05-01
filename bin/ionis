@@ -4,17 +4,18 @@
 # Setup.
 #
 
-VERSION="1.0.0"
+VERSION="1.0.2"
 
 function help {
-  echo -ne "\e[1m ionis $VERSION"
+  echo -e "\e[1m ionis $VERSION"
   printf "\n Usage:\e[21m ionis [command] [flags]\n\n" 
   printf " \e[1mCommands:\e[21m\n"
   echo -e "\e[1m   prepare\e[21m  Prepare apk with certificate and optimization. Ready for playstore."
-  echo -e "\e[1m   pf     \e[21m  Add a platform. i.e: android, ios. Usage: ionis pf android"
-  echo -e "\e[1m   release\e[21m  Build the application in release mode."
+  echo -e "\e[1m   pf     \e[21m  Add a platform. i.e: android, ios. Usage: \e[2mionis pf android."
+  echo -e "\e[1m   release\e[21m  Build the application in release mode. ie: \e[2mionis release android."
   echo -e "\e[1m   serve  \e[21m  Run server ionic. All Ionic flags are supported."
   echo -e "\e[2m   s      \e[22m  Shortcut to serve."
+  echo -e "\e[1m   version\e[21m  Show version."
 }
 
 # return 1 if global command line program installed, else 0
@@ -54,9 +55,10 @@ check_cordova_ionic() {
   fi
 }
 
-# Generate an apk release and prepare
+# take apk release and prepare
 # the package for publication in the playstore.
 function ionic_prepare {
+  # is installed programs
   if [ "$(program_is_installed keytool)" == 0 ]; then 
     echo -e "\e[1mError: keytool is not installed."
     exit 1
@@ -64,6 +66,21 @@ function ionic_prepare {
   if [ "$(program_is_installed jarsigner)" == 0 ]; then 
     echo -e "\e[1mError: jarsigner is not installed."
     exit 1
+  fi
+
+  # find apk
+  echo "Finding apk release..."
+  sleep .8
+  apk_release=$(find . -name '*release-unsigned.apk' | head -n 1)
+  if [ ! $apk_release ]; then
+    echo -e "\e[1mApk released not found.\e[21m"
+    sleep .8
+    echo "Find '*.apk' ..."
+    apk_release=$(find . -name '*.apk' | head -n 1)
+    if [ ! $apk_release ]; then
+      echo -e "\e[1mError: .apk not found. Run 'ionis release android'.\e[21m"
+      exit 1
+    fi
   fi
   
   # find zipalign
@@ -121,9 +138,6 @@ function ionic_prepare {
       -keyalg RSA -keysize 2048 -validity 10000 -dname "cn=$kt_name, ou=$kt_ou, o=$kt_o, c=$kt_c"
   fi
 
-  echo "Finding apk release..."
-  apk_release=$(find . -name '*release-unsigned.apk' | head -n 1)
-
   echo "Signing and verifying the application..."  
   jarsigner -verbose -sigalg SHA1withRSA -digestalg SHA1 -keystore $name_keystore $apk_release $name_alias
 
@@ -139,7 +153,7 @@ function ionic_prepare {
 #
 # examples:
 #   ionis prepare
-#   ionis release
+#   ionis release android
 #   ionis serve
 #     ionis s
 #   ionis help
@@ -173,8 +187,8 @@ elif [ $1 = "pf" ]; then
     exit 1
   fi
   echo "Add platform $2"
-elif [ $1 == "version" ] || [ $1 == "v" ]; then
-  version
+elif [ $1 == "version" ] || [ $1 == "v" ] || [ $1 == "-v" ]; then
+  echo $VERSION
 elif [ $1 == "help" ]; then
   help
 else
