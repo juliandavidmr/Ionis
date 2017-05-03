@@ -4,7 +4,7 @@
 # Setup.
 #
 
-VERSION="1.0.2"
+VERSION="1.0.3"
 
 function help {
   echo -e "\e[1m ionis $VERSION"
@@ -47,12 +47,6 @@ function ionic_build_release {
 
 function ionic_serve {
   ionic serve $@
-}
-
-check_cordova_ionic() {
-  if [ "$(program_is_installed cordova)" == 0 ]; then 
-    echo "Error: cordova is not installed."
-  fi
 }
 
 # take apk release and prepare
@@ -148,8 +142,7 @@ function ionic_prepare {
   $zipalign_dirname -v 4 $apk_release APK_RELEASED.apk
 }
 
-# check_cordova_ionic
-# configure_platform android
+# menu
 #
 # examples:
 #   ionis prepare
@@ -187,12 +180,13 @@ elif [ $1 = "pf" ]; then
     exit 1
   fi
   echo "Add platform $2"
+  configure_platform $2
 elif [ $1 == "version" ] || [ $1 == "v" ] || [ $1 == "-v" ]; then
   echo $VERSION
 elif [ $1 == "help" ]; then
   help
 else
   # Command is not recognized
-  echo -e "\e[1mCommand '$1' is not recognized. Passing params to 'ionic'"
+  echo -e "\e[1mPassing params '$1' to 'ionic'"
   ionic $@
 fi

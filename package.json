@@ -1,7 +1,7 @@
 {
   "name": "ionis",
-  "version": "1.0.2",
-  "description": "Ionic utilities. Manager your applications.",
+  "version": "1.0.3",
+  "description": "Certify and optimize your mobile applications. Ionic utilities.",
   "scripts": {
     "test": "./bin/ionis help"
   },
