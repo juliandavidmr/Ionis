@@ -47,6 +47,10 @@ Build the application in release mode.
 ```sh
 $ ionis release android
 ```
+Build the application in release with  icons update.
+```sh
+$ ionis release android resource
+```
 
 All commands ionic are soported. [See](https://ionicframework.com/docs/cli)
 
