@@ -44,7 +44,16 @@ function ionic_build_release {
   fi
   ionic build android --release $@
 }
-
+#full buid android
+function ionic_build_release_with_resource{
+   if [ ! -f ./config.xml ]; then
+    echo -e "\e[1mError: file 'config.xml' not found"    
+    exit 1
+  fi
+  #platform resource
+  ionic cordova resource android -f $@
+  ionic build android --release $@
+}
 function ionic_serve {
   ionic serve $@
 }
