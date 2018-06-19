@@ -156,6 +156,7 @@ function ionic_prepare {
 # examples:
 #   ionis prepare
 #   ionis release android
+#   ionis release android resource
 #   ionis serve
 #     ionis s
 #   ionis help
@@ -166,10 +167,10 @@ if [ ! $1 ]; then
   exit 1
 elif [ $1 == "release" ]; then  
   echo "Mode $1. Wait please..."
-  if [ $2 ]; then 
-    shift
-  fi
-  ionic_build_release $@
+  if [ $3 == "resource" ]; then 
+    ionic_build_release_with_resource $@
+  elif [ $2 == "android"]; then
+    ionic_build_release $@
 elif [ $1 == "serve" ] || [ $1 == "s" ]; then
   echo "Mode serve. Wait please..."
   if [ $2 ]; then 
